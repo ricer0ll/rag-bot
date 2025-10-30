@@ -17,7 +17,14 @@ Then in your terminal, navigate to the project's root directory, and enter:
 `uv pip install -r requirements.txt`  
 
 ### Project Secrets
-You will need to create a .env file. This will hold the Discord Bot's token needed for our application. You may ask Brian to give you the Discord Bot token.  
+You will need to create a .env file. This will hold the Discord Bot's token needed for our application. You may ask Brian to give you the Discord Bot token. The .env file should look like this:
+```
+DISCORD_TOKEN=abcdefg12345
+```
 
 ### Contributions
-When contributing or adding features, please create a branch and make your changes. Then submit a Pull Request.
+When contributing or adding features, please create a branch and make your changes. Then submit a Pull Request.  
+
+
+## Running the Discord Bot
+`python main.py`
