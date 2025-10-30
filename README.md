@@ -14,6 +14,9 @@ For this project, we will be using Python 3.10.11. You can download and install 
 Set up uv, a modern and fast Python package manager: https://docs.astral.sh/uv/getting-started/installation/  
 
 Then in your terminal, navigate to the project's root directory, and enter:  
+`uv venv --python 3.10`  
+
+You should now have created a virtual environment. Activate the virtual environment and enter:  
 `uv pip install -r requirements.txt`  
 
 ### Project Secrets
