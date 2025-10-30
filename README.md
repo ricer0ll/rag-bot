@@ -1,7 +1,7 @@
 # LLM RAG Bot Project
 We are developing a Discord Bot, integrating LLM and RAG capabilities. We will be using the [Pycord](https://pycord.dev/) library to develop the Discord Bot. We will also be using [ChromaDB](https://docs.trychroma.com/docs/overview/introduction) as our vector database for RAG capabilities.
 
-The LLM will be ran locally, using [KoboldCPP](https://github.com/LostRuins/koboldcpp). The model that we are choosing is a Mistral 7b Q4_K_M base model.
+The LLM will be ran locally, using [KoboldCPP](https://github.com/LostRuins/koboldcpp). The model that we are choosing is a Mistral 7b Q4_K_M base model which can be found here: https://huggingface.co/MaziyarPanahi/Mistral-7B-Instruct-v0.3-GGUF.
 
 We will be using a few of their endpoints, as well as their websearch endpoint to easily use search results to store in the vector database.
 
