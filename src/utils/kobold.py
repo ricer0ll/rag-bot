@@ -14,6 +14,9 @@ class KoboldClient:
         self.temperature = 0.6
         self.stop_sequence = ["\n", "</s>[INST]", "[/INST]"]
         self.api_key = "llmgroup9"
+        self.dry_allowed_length = 2
+        self.dry_multiplier = 0.8
+        self.dry_base = 1.75
 
         self.chat_logs: list[str] = []
 
@@ -51,7 +54,10 @@ class KoboldClient:
             "max_length": self.max_length,
             "temperature": self.temperature,
             "stop_sequence": self.stop_sequence,
-            "prompt": prompt
+            "prompt": prompt,
+            "dry_multiplier": self.dry_multiplier,
+            "dry_base": self.dry_base,
+            "dry_allowed_length": self.dry_allowed_length
         }
 
         return body
