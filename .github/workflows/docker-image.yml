@@ -13,8 +13,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: |
-        docker build -t riceroll/rag-bot:latest .
-        docker push ricer0ll/rag-bot
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+      - name: Build the Docker image
+        run: docker build -t riceroll/rag-bot:latest .
+        
+      - name: Push the Docker Image
+        run: docker push ricer0ll/rag-bot
