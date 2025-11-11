@@ -23,7 +23,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
         
       - name: Build the Docker image
-        run: docker build -t riceroll/rag-bot:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/rag-bot:latest .
         
       - name: Push the Docker Image
-        run: docker push ricer0ll/rag-bot
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/rag-bot
