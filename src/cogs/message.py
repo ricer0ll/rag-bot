@@ -31,6 +31,12 @@ class Message(commands.Cog):
         await message.channel.send(response)
 
 
+    @commands.slash_command()
+    async def clear(self, ctx: discord.ApplicationContext):
+        self.kobold_client.clear_memory()
+        await ctx.respond("Memory Cleared...")
+
+
     def replace_user_mentions(self, message: str) -> str:
         """Replaces @<user> mentions with their discord usernames"""
         new_msg = ""

@@ -93,4 +93,8 @@ class KoboldClient:
         # add glados's message to the history as well.
         self.chat_logs.append(f"GlaDOS: {response}")
         return response
+    
 
+    def clear_memory(self):
+        """Clears the chat log history"""
+        self.chat_logs.clear()
