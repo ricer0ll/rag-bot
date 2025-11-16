@@ -4,6 +4,22 @@ This module contains classes and methods for interacting with the koboldcpp serv
 import requests
 from src.utils.prompts.helper import system_prompt
 
+
+def write_to_history(role: str, message: str) -> None:
+    """Writes a message to the conversation history file."""
+    with open("conversation_history.txt", "a", encoding="utf-8") as f:
+        f.write(f"{role}: {message}\n")
+
+def return_history() -> str:
+    """Returns the conversation history as a string."""
+    try:
+        with open("conversation_history.txt", "r", encoding="utf-8") as f:
+            history = f.read()
+            return history
+    except FileNotFoundError:
+        return ""
+
+
 class KoboldClient:
     """
     The class that handles kobold-related tasks
@@ -19,6 +35,7 @@ class KoboldClient:
         self.dry_base = 1.75
 
         self.chat_logs: list[str] = []
+        self.chat_logs.append(return_history())
 
 
     def generate_prompt(self) -> str:
@@ -94,3 +111,17 @@ class KoboldClient:
         self.chat_logs.append(f"GlaDOS: {response}")
         return response
 
+
+def write_to_history(role: str, message: str) -> None:
+    """Writes a message to the conversation history file."""
+    with open("conversation_history.txt", "a", encoding="utf-8") as f:
+        f.write(f"{role}: {message}\n")
+
+def return_history() -> str:
+    """Returns the conversation history as a string."""
+    try:
+        with open("conversation_history.txt", "r", encoding="utf-8") as f:
+            history = f.read()
+            return history
+    except FileNotFoundError:
+        return ""

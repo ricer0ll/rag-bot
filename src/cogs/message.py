@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
 import re
-from src.utils.kobold import KoboldClient
+from src.utils.kobold import KoboldClient, write_to_history
+
 
 class Message(commands.Cog):
     def __init__(self, bot: discord.Bot):
@@ -20,13 +21,15 @@ class Message(commands.Cog):
             return
         
         user_msg = self.replace_user_mentions(message.content)
-
         if "glados" not in user_msg.lower():
-            return
+                return
         
+        write_to_history("user", user_msg)
         # Have glados reply if mentioned
         response = self.kobold_client.get_response(user_msg, message.author.name)
         response = self.trim_incomplete_sentence(response)
+
+        write_to_history("glados", response)
 
         await message.channel.send(response)
 
