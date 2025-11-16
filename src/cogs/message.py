@@ -22,7 +22,7 @@ class Message(commands.Cog):
         
         user_msg = self.replace_user_mentions(message.content)
         if "glados" not in user_msg.lower():
-                return
+            return
         
         write_to_history("user", user_msg)
         # Have glados reply if mentioned
