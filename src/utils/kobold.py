@@ -4,6 +4,9 @@ This module contains classes and methods for interacting with the koboldcpp serv
 import requests
 from src.utils.prompts.helper import system_prompt
 
+
+
+
 class KoboldClient:
     """
     The class that handles kobold-related tasks
@@ -14,11 +17,12 @@ class KoboldClient:
         self.temperature = 0.6
         self.stop_sequence = ["\n", "</s>[INST]", "[/INST]"]
         self.api_key = "llmgroup9"
-        self.dry_allowed_length = 2
+        self.dry_allowed_length = 2 
         self.dry_multiplier = 0.8
         self.dry_base = 1.75
 
         self.chat_logs: list[str] = []
+        self.chat_logs.append(self.return_history())
 
 
     def generate_prompt(self) -> str:
@@ -97,4 +101,26 @@ class KoboldClient:
 
     def clear_memory(self):
         """Clears the chat log history"""
-        self.chat_logs.clear()
+        self.chat_logs.clear(self)
+        self.clear_history()
+
+    def write_to_history(self, role: str, message: str) -> None:
+        """Writes a message to the conversation history file."""
+        with open("conversation_history.txt", "a", encoding="utf-8") as f:
+            f.write(f"{role}: {message}\n")
+
+    def return_history(self) -> str:
+        """Returns the conversation history as a string."""
+        try:
+            with open("conversation_history.txt", "r", encoding="utf-8") as f:
+                history = f.read()
+                return history
+        except FileNotFoundError:
+            return ""
+        
+    def clear_history(self) -> None:
+        """Clears the conversation history file."""
+        with open("conversation_history.txt", "w", encoding="utf-8") as f:
+            f.write("")
+
+
