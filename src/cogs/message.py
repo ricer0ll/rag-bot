@@ -24,10 +24,13 @@ class Message(commands.Cog):
         if "glados" not in user_msg.lower():
             return
         
+        self.kobold_client.write_to_history("User", user_msg)
+        
         # Have glados reply if mentioned
         response = self.kobold_client.get_response(user_msg, message.author.name)
         response = self.trim_incomplete_sentence(response)
-
+        self.kobold_client.write_to_history("GlaDOS", response)
+        
         await message.channel.send(response)
 
 
