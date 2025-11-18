@@ -55,7 +55,7 @@ class KoboldClient:
             prompt += message + "\n"
         
         # Now we have the LLM generate text for GlaDOS
-        prompt += "GlaDOS:"
+        prompt += "Glados:"
 
         return prompt
 
