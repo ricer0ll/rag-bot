@@ -39,7 +39,8 @@ RUN apt-get update && apt-get install -y git libsqlite3-dev sqlite3 && rm -rf /v
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install uv && \
-    python -m uv pip install -r requirements.txt
+    python -m uv pip install -r requirements.txt && \
+    python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
 # Switch to the non-privileged user to run the application.
 USER appuser

@@ -27,11 +27,14 @@ class KoboldClient:
         self.chat_logs.append(self.return_history())
 
         self.client = chromadb.EphemeralClient()
-        embedded_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(
-            model_name="all-MiniLM-L6-v2"
+        self.collection = self.client.get_or_create_collection(
+            name="glados_memory",
+            configuration= {
+                "hnsw": {
+                    "space": "cosine"
+                }
+            }
         )
-        self.collection = self.client.get_or_create_collection(name="glados_memory", embedding_function=embedded_function)
-        
 
 
     def generate_prompt(self, context) -> str:
