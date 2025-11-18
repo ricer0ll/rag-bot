@@ -106,13 +106,13 @@ class KoboldClient:
 
     def write_to_history(self, role: str, message: str) -> None:
         """Writes a message to the conversation history file."""
-        with open("conversation_history.txt", "a", encoding="utf-8") as f:
+        with open("app/data/conversation_history.txt", "a", encoding="utf-8") as f:
             f.write(f"{role}: {message}\n")
 
     def return_history(self) -> str:
         """Returns the conversation history as a string."""
         try:
-            with open("conversation_history.txt", "r", encoding="utf-8") as f:
+            with open("app/data/conversation_history.txt", "r", encoding="utf-8") as f:
                 history = f.read()
                 return history
         except FileNotFoundError:
@@ -120,7 +120,7 @@ class KoboldClient:
         
     def clear_history(self) -> None:
         """Clears the conversation history file."""
-        with open("conversation_history.txt", "w", encoding="utf-8") as f:
+        with open("app/data/conversation_history.txt", "w", encoding="utf-8") as f:
             f.write("")
 
 
