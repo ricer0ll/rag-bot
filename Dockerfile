@@ -12,6 +12,11 @@ FROM python:${PYTHON_VERSION}-slim-bookworm as base
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
 
+# Needed to download and cache models from hf and torch
+ENV TORCH_HOME=/app/.cache
+ENV CHROMA_CACHE=/app/.cache
+ENV HF_HOME=/app/.cache
+
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
@@ -41,6 +46,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install uv && \
     python -m uv pip install -r requirements.txt && \
     python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
+# Ensure /app/.cache exists for runtime
+RUN mkdir -p /app/.cache && chown -R appuser:appuser /app/.cache
 
 # Switch to the non-privileged user to run the application.
 USER appuser
