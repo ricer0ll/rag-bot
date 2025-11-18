@@ -1,8 +1,13 @@
 '''
 This module contains classes and methods for interacting with the koboldcpp server.
 '''
+import chromadb.utils
 import requests
 from src.utils.prompts.helper import system_prompt
+import chromadb
+
+
+
 
 class KoboldClient:
     """
@@ -14,14 +19,22 @@ class KoboldClient:
         self.temperature = 0.6
         self.stop_sequence = ["\n", "</s>[INST]", "[/INST]"]
         self.api_key = "llmgroup9"
-        self.dry_allowed_length = 2
+        self.dry_allowed_length = 2 
         self.dry_multiplier = 0.8
         self.dry_base = 1.75
 
         self.chat_logs: list[str] = []
+        self.chat_logs.append(self.return_history())
+
+        self.client = chromadb.EphemeralClient()
+        embedded_function = chromadb.utils.embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
+        self.collection = self.client.get_or_create_collection(name="glados_memory", embedding_function=embedded_function)
+        
 
 
-    def generate_prompt(self) -> str:
+    def generate_prompt(self, context) -> str:
         """
         Generates a complete prompt for the kobold prompt body.
 
@@ -29,6 +42,8 @@ class KoboldClient:
             str: The prompt as a string.
         """
         prompt = f"{system_prompt}\n\n"
+        prompt += f"[Context:]\n"
+        prompt += context + "\n\n"
         prompt += f"[Chat logs:]\n"
 
         for message in self.chat_logs:
@@ -79,8 +94,12 @@ class KoboldClient:
         # add user's message to chat history
         self.chat_logs.append(f"{user_name}: {user_msg}")
 
-        prompt = self.generate_prompt()
+
+        rag_results = self.collection.query(query_texts=[user_msg], n_results=3)
+        retrieved_context = "\n---\n".join(rag_results['documents'][0])
+        prompt = self.generate_prompt(retrieved_context)
         body = self.generate_request_body(prompt)
+
 
         try:
             result = requests.post(url=url, headers=headers, json=body)
@@ -98,3 +117,25 @@ class KoboldClient:
     def clear_memory(self):
         """Clears the chat log history"""
         self.chat_logs.clear()
+        self.clear_history()
+
+    def write_to_history(self, role: str, message: str) -> None:
+        """Writes a message to the conversation history file."""
+        with open("/app/data/conversation_history.txt", "a", encoding="utf-8") as f:
+            f.write(f"{role}: {message}\n")
+
+    def return_history(self) -> str:
+        """Returns the conversation history as a string."""
+        try:
+            with open("/app/data/conversation_history.txt", "r", encoding="utf-8") as f:
+                history = f.read()
+                return history
+        except FileNotFoundError:
+            return ""
+        
+    def clear_history(self) -> None:
+        """Clears the conversation history file."""
+        with open("/app/data/conversation_history.txt", "w", encoding="utf-8") as f:
+            f.write("")
+
+
