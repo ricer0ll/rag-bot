@@ -101,7 +101,7 @@ class KoboldClient:
 
     def clear_memory(self):
         """Clears the chat log history"""
-        self.chat_logs.clear(self)
+        self.chat_logs.clear()
         self.clear_history()
 
     def write_to_history(self, role: str, message: str) -> None:
