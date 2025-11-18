@@ -29,11 +29,11 @@ ARG UID=1001
 RUN adduser \
     --disabled-password \
     --gecos "" \
-    --home "/nonexistent" \
+    --home "/app" \
     --shell "/sbin/nologin" \
-    --no-create-home \
     --uid "${UID}" \
-    appuser
+    appuser && \ 
+    mkdir -p /app/.cache && chown -R appuser:appuser /app/.cache
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -47,8 +47,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     python -m uv pip install -r requirements.txt && \
     python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
 
-# Ensure /app/.cache exists for runtime
-RUN mkdir -p /app/.cache && chown -R appuser:appuser /app/.cache
 
 # Switch to the non-privileged user to run the application.
 USER appuser
