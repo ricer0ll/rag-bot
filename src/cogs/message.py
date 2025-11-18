@@ -29,7 +29,7 @@ class Message(commands.Cog):
         # Have glados reply if mentioned
         response = self.kobold_client.get_response(user_msg, message.author.name)
         response = self.trim_incomplete_sentence(response)
-        self.kobold_client.write_to_history("GlaDOS", response)
+        self.kobold_client.write_to_history("Glados", response)
         
         await message.channel.send(response)
 

@@ -37,7 +37,7 @@ class KoboldClient:
         )
 
 
-    def generate_prompt(self, context) -> str:
+    def generate_prompt(self, context: str = "") -> str:
         """
         Generates a complete prompt for the kobold prompt body.
 
@@ -45,8 +45,10 @@ class KoboldClient:
             str: The prompt as a string.
         """
         prompt = f"{system_prompt}\n\n"
-        prompt += f"[Context:]\n"
-        prompt += context + "\n\n"
+
+        if context:
+            prompt += f"Relevant Information:\n"
+            prompt += context + "\n\n"
         prompt += f"[Chat logs:]\n"
 
         for message in self.chat_logs:
@@ -93,13 +95,14 @@ class KoboldClient:
         """
         headers = {"Authorization": f"Bearer {self.api_key}"}
         url = self.base_url + "/api/v1/generate"
+        retrieved_context = ""
 
         # add user's message to chat history
         self.chat_logs.append(f"{user_name}: {user_msg}")
-
-
+        
         rag_results = self.collection.query(query_texts=[user_msg], n_results=3)
-        retrieved_context = "\n---\n".join(rag_results['documents'][0])
+        if rag_results:
+            retrieved_context += "\n---\n".join(rag_results['documents'][0])
         prompt = self.generate_prompt(retrieved_context)
         body = self.generate_request_body(prompt)
 
@@ -113,7 +116,7 @@ class KoboldClient:
         response = response.strip()
 
         # add glados's message to the history as well.
-        self.chat_logs.append(f"GlaDOS: {response}")
+        self.chat_logs.append(f"Glados: {response}")
         return response
     
 
