@@ -1,13 +1,19 @@
 '''
 This module contains classes and methods for interacting with the koboldcpp server.
 '''
-import chromadb.utils
 import requests
 from src.utils.prompts.helper import system_prompt
 import chromadb
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+environment = os.getenv("ENVIRONMENT")
 
-
+if environment == "DEV":
+    history_path = "conversation_history.txt"
+else:
+    history_path = "/app/data/conversation_history.txt"
 
 class KoboldClient:
     """
@@ -127,13 +133,13 @@ class KoboldClient:
 
     def write_to_history(self, role: str, message: str) -> None:
         """Writes a message to the conversation history file."""
-        with open("/app/data/conversation_history.txt", "a", encoding="utf-8") as f:
+        with open(history_path, "a", encoding="utf-8") as f:
             f.write(f"{role}: {message}\n")
 
     def return_history(self) -> str:
         """Returns the conversation history as a string."""
         try:
-            with open("/app/data/conversation_history.txt", "r", encoding="utf-8") as f:
+            with open(history_path, "r", encoding="utf-8") as f:
                 history = f.read()
                 return history
         except FileNotFoundError:
@@ -141,7 +147,7 @@ class KoboldClient:
         
     def clear_history(self) -> None:
         """Clears the conversation history file."""
-        with open("/app/data/conversation_history.txt", "w", encoding="utf-8") as f:
+        with open(history_path, "w", encoding="utf-8") as f:
             f.write("")
 
 

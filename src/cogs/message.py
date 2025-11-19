@@ -36,7 +36,6 @@ class Message(commands.Cog):
 
     @commands.slash_command()
     async def clear(self, ctx: discord.ApplicationContext):
-        #
         self.kobold_client.clear_memory()
         await ctx.respond("Memory Cleared...")
 
