@@ -107,7 +107,7 @@ class KoboldClient:
         self.chat_logs.append(f"{user_name}: {user_msg}")
         
         rag_results = self.collection.query(query_texts=[user_msg], n_results=1)
-        if rag_results['documents'][0][0]:
+        if rag_results['documents'][0]:
             retrieved_context = rag_results['documents'][0][0]
         prompt = self.generate_prompt(retrieved_context)
         body = self.generate_request_body(prompt)
