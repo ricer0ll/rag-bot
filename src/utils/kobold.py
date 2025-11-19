@@ -46,13 +46,13 @@ class KoboldClient:
         """
         prompt = f"{system_prompt}\n\n"
 
-        if context:
-            prompt += f"Relevant Information:\n"
-            prompt += context + "\n\n"
         prompt += f"[Chat logs:]\n"
 
         for message in self.chat_logs:
             prompt += message + "\n"
+        
+        if context:
+            prompt += f"[Note:] {context}\n"
         
         # Now we have the LLM generate text for GlaDOS
         prompt += "Glados:"
