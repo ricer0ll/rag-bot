@@ -52,7 +52,7 @@ class KoboldClient:
             prompt += message + "\n"
         
         if context:
-            prompt += f"[Note:] {context}\n"
+            prompt += f"[Memory:] {context}\n"
         
         # Now we have the LLM generate text for GlaDOS
         prompt += "Glados:"
