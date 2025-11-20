@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 import re
 from src.utils.kobold import KoboldClient
+import requests
+import uuid
 
 class Message(commands.Cog):
     def __init__(self, bot: discord.Bot):
@@ -87,6 +89,71 @@ class Message(commands.Cog):
             i -= 1
         
         return response[:i+1]
+    @commands.slash_command(description="Web search using Kobold and store result for RAG")
+    async def websearch(self, ctx: discord.ApplicationContext, query: str):
+    
+    await ctx.defer()
+
+    # ---------- 1. Call Kobold websearch ----------
+    resp = requests.post(
+        "http://localhost:5001/api/extra/websearch",
+        json={"input": query},
+        timeout=30
+    )
+    data = resp.json()
+    top = data["results"][0]  # top-most result
+
+    content = top.get("content", "")
+    title = top.get("title")
+    url = top.get("url")
+
+
+    # ---------- 2. Store result in JSONL ----------
+    os.makedirs("data", exist_ok=True)
+    jsonl_path = "data/websearch.jsonl"
+
+    record = {
+        "id": str(uuid.uuid4()),
+        "text": content,
+        "metadata": {
+            "title": title,
+            "url": url
+        }
+    }
+
+    with open(jsonl_path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+    # ---------- 3. Reload documents into Chroma ----------
+    ids, docs, metas = [], [], []
+
+    with open(jsonl_path, encoding="utf-8") as f:
+        for line in f:
+            obj = json.loads(line)
+            ids.append(obj["id"])
+            docs.append(obj["text"])
+            metas.append(obj["metadata"])
+
+    existing = self.collection.get()
+    if existing["ids"]:
+        self.collection.delete(existing["ids"])
+
+    self.collection.add(
+        ids=ids,
+        documents=docs,
+        metadatas=metas
+    )
+
+
+    # ---------- 4. Echo result in Discord ----------
+    preview = content[:1800]
+    await ctx.respond(
+        f"**Top Web Result:** {title}\n{url}\n\n```{preview}```"
+    )
+
+
+    
 
 
 def setup(bot: discord.Bot):
