@@ -21,7 +21,7 @@ class KoboldClient:
     """
     def __init__(self):
         self.base_url = "http://brian-le-llm.duckdns.org:5500"
-        self.max_length = 150
+        self.max_length = 100
         self.temperature = 0.6
         self.stop_sequence = ["\n", "</s>[INST]", "[/INST]"]
         self.api_key = "llmgroup9"
