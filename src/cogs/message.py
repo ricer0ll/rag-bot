@@ -24,7 +24,7 @@ class Message(commands.Cog):
         if "glados" not in user_msg.lower():
             return
         
-        self.kobold_client.write_to_history("User", user_msg)
+        self.kobold_client.write_to_history(message.author.name, user_msg)
         
         # Have glados reply if mentioned
         response = self.kobold_client.get_response(user_msg, message.author.name)
