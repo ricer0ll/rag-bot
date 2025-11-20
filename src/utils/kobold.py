@@ -50,13 +50,17 @@ class KoboldClient:
         Returns:
             str: The prompt as a string.
         """
-        prompt = f"{system_prompt}\n\n"
-
-        prompt += f"[Chat logs:]\n"
+        prompt = ""
 
         for message in self.chat_logs:
-            prompt += message + "\n"
+            if message.startswith("Glados:"): # bot
+                prompt += "[/INST] "
+            else: # user
+                prompt += "</s>[/INST] "
+
+            prompt += message
         
+        prompt += "[/INST] "
         if context:
             prompt += f"[Memory:] {context}\n"
         
@@ -80,6 +84,7 @@ class KoboldClient:
             "max_length": self.max_length,
             "temperature": self.temperature,
             "stop_sequence": self.stop_sequence,
+            "memory": system_prompt,
             "prompt": prompt,
             "dry_multiplier": self.dry_multiplier,
             "dry_base": self.dry_base,
