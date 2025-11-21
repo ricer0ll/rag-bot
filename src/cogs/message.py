@@ -4,6 +4,7 @@ import re
 from src.utils.kobold import KoboldClient
 import requests
 import uuid
+import json
 
 class Message(commands.Cog):
     def __init__(self, bot: discord.Bot):
