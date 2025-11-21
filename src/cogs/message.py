@@ -5,6 +5,7 @@ from src.utils.kobold import KoboldClient
 import requests
 import uuid
 import json
+import os
 
 class Message(commands.Cog):
     def __init__(self, bot: discord.Bot):
@@ -92,66 +93,65 @@ class Message(commands.Cog):
         return response[:i+1]
     @commands.slash_command(description="Web search using Kobold and store result for RAG")
     async def websearch(self, ctx: discord.ApplicationContext, query: str):
-    
-    await ctx.defer()
 
-    # ---------- 1. Call Kobold websearch ----------
-    resp = requests.post(
+        await ctx.defer()
+
+        # ---------- 1. Call Kobold websearch ----------
+        resp = requests.post(
         "http://localhost:5001/api/extra/websearch",
         json={"input": query},
         timeout=30
     )
-    data = resp.json()
-    top = data["results"][0]  # top-most result
+        data = resp.json()
+        top = data["results"][0]
 
-    content = top.get("content", "")
-    title = top.get("title")
-    url = top.get("url")
+        content = top.get("content", "")
+        title = top.get("title")
+        url = top.get("url")
+        desc = top.get("description", "")
 
+        if not content:
+            content = desc or "No content found."
 
-    # ---------- 2. Store result in JSONL ----------
-    os.makedirs("data", exist_ok=True)
-    jsonl_path = "data/websearch.jsonl"
+        # ---------- 2. Store result in JSONL ----------
+        os.makedirs("data", exist_ok=True)
+        jsonl_path = "data/websearch.jsonl"
 
-    record = {
-        "id": str(uuid.uuid4()),
-        "text": content,
-        "metadata": {
+        record = {
             "title": title,
-            "url": url
+            "url": url,
+            "desc": desc,
+            "content": content
         }
-    }
-
-    with open(jsonl_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(record, ensure_ascii=False) + "\n")
-
+        with open(jsonl_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     # ---------- 3. Reload documents into Chroma ----------
-    ids, docs, metas = [], [], []
+        ids, docs, metas = [], [], []
 
-    with open(jsonl_path, encoding="utf-8") as f:
-        for line in f:
-            obj = json.loads(line)
-            ids.append(obj["id"])
-            docs.append(obj["text"])
-            metas.append(obj["metadata"])
+        with open(jsonl_path, encoding="utf-8") as f:
+            for line in f:
+                obj = json.loads(line)
+                ids.append(str(uuid.uuid4()))
+                docs.append(obj.get("content", ""))
+                metas.append({
+                 "title": obj.get("title"),
+                    "url": obj.get("url"),
+                    "desc": obj.get("desc")
+                })
 
-    existing = self.collection.get()
-    if existing["ids"]:
-        self.collection.delete(existing["ids"])
+    # Ephemeral client = NO delete
+        self.kobold_client.collection.add(
+            ids=ids,
+            documents=docs,
+            metadatas=metas
+        )
 
-    self.collection.add(
-        ids=ids,
-        documents=docs,
-        metadatas=metas
-    )
-
-
-    # ---------- 4. Echo result in Discord ----------
-    preview = content[:1800]
-    await ctx.respond(
-        f"**Top Web Result:** {title}\n{url}\n\n```{preview}```"
-    )
+    # ---------- 4. Echo result ----------
+        preview = content[:1800]
+        await ctx.respond(
+            f"**Top Web Result:** {title}\n{url}\n\n```{preview}```"
+        )
 
 
     
