@@ -3,7 +3,7 @@ This module contains classes and methods for interacting with the koboldcpp serv
 '''
 import requests
 from src.utils.prompts.helper import system_prompt
-import chromadb
+from src.utils.chroma import chroma_client
 from dotenv import load_dotenv
 import os
 
@@ -31,17 +31,7 @@ class KoboldClient:
 
         self.chat_logs: list[str] = []
         self.chat_logs.append(self.return_history())
-
-        self.client = chromadb.EphemeralClient()
-        self.collection = self.client.get_or_create_collection(
-            name="glados_memory",
-            configuration= {
-                "hnsw": {
-                    "space": "cosine"
-                }
-            }
-        )
-
+        self.collection = chroma_client
 
     def generate_prompt(self) -> str:
         """
@@ -112,9 +102,11 @@ class KoboldClient:
         # add user's message to chat history
         self.chat_logs.append(f"{user_name}: {user_msg}")
         
-        rag_results = self.collection.query(query_texts=[user_msg], n_results=1)
-        if rag_results['documents'][0]:
-            retrieved_context = rag_results['documents'][0][0]
+        # RAG
+        rag_results, distance = self.collection.query(text=[user_msg], n_results=1)
+        if rag_results and self.similarity_check(distance):
+            retrieved_context = rag_results
+
         prompt = self.generate_prompt()
         body = self.generate_request_body(prompt, retrieved_context)
 
@@ -130,6 +122,28 @@ class KoboldClient:
         # add glados's message to the history as well.
         self.chat_logs.append(f"Glados: {response}")
         return response
+    
+
+    def similarity_check(self, distance: float):
+        """
+        Checks if the query'd document is relevant based on the distance
+        
+        Args:
+            distance (int): Distance score from ChromaDB queries.
+        Returns:
+            bool: True if it is relevant. False if not.
+        """
+
+        threshold = 0.4
+        similarity = 1 - distance
+
+        print(f"Similarity Score: {similarity}")
+
+        if similarity < threshold:
+            return False
+        else:
+            return True
+
     
 
     def clear_memory(self):
