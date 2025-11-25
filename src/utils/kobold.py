@@ -43,7 +43,7 @@ class KoboldClient:
         )
 
 
-    def generate_prompt(self, context: str = "") -> str:
+    def generate_prompt(self) -> str:
         """
         Generates a complete prompt for the kobold prompt body.
 
@@ -60,8 +60,6 @@ class KoboldClient:
 
             prompt += message
         
-        if context:
-            prompt += f"\n[Memory:] {context}"
         prompt += "[/INST] "
         
         # Now we have the LLM generate text for GlaDOS
@@ -70,7 +68,7 @@ class KoboldClient:
         return prompt
 
 
-    def generate_request_body(self, prompt: str) -> dict:
+    def generate_request_body(self, prompt: str, context: str = "") -> dict:
         """
         Generates request body for post requesting to kobold's generation endpoint.
 
@@ -79,12 +77,15 @@ class KoboldClient:
         Returns:
             dict: The json body as a dict.
         """
+        memory = system_prompt
+        if context:
+            memory += f"\n\n[Context:] {context}"
 
         body = {
             "max_length": self.max_length,
             "temperature": self.temperature,
             "stop_sequence": self.stop_sequence,
-            "memory": system_prompt,
+            "memory": memory,
             "prompt": prompt,
             "dry_multiplier": self.dry_multiplier,
             "dry_base": self.dry_base,
@@ -114,8 +115,8 @@ class KoboldClient:
         rag_results = self.collection.query(query_texts=[user_msg], n_results=1)
         if rag_results['documents'][0]:
             retrieved_context = rag_results['documents'][0][0]
-        prompt = self.generate_prompt(retrieved_context)
-        body = self.generate_request_body(prompt)
+        prompt = self.generate_prompt()
+        body = self.generate_request_body(prompt, retrieved_context)
 
 
         try:
