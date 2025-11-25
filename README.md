@@ -38,12 +38,12 @@ services:
   rag-bot:
     image: ricer0ll/rag-bot
     container_name: rag-bot
-    user: "1001:100"
+    user: "<PUID>:<PGID>"
     ports:
       - "8000:8000"
     volumes:
-      - /srv/dev-disk-by-uuid-e63447d1-8e01-4c42-a96e-1760332fccef/data/appdata:/app/data
-      - /srv/dev-disk-by-uuid-e63447d1-8e01-4c42-a96e-1760332fccef/data/appdata/.cache:/app/.cache
+      - /path/to/data/appdata:/app/data
+      - /path/to/data/appdata/.cache:/app/.cache
     environment:
       - TRANSFORMERS_CACHE=/app/.cache
       - HF_HOME=/app/.cache
