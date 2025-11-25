@@ -57,6 +57,14 @@ class Message(commands.Cog):
         self.chroma_client.load()
 
 
+    @commands.slash_command()
+    async def add_data(self, ctx: discord.ApplicationContext, info: str):
+        await ctx.defer()
+        self.chroma_client.add(info)
+        self.chroma_client.load()
+        await ctx.followup.send("Added to the database!")
+
+
     def replace_user_mentions(self, message: str) -> str:
         """Replaces @<user> mentions with their discord usernames"""
         new_msg = ""
