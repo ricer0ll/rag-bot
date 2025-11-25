@@ -2,16 +2,18 @@ import discord
 from discord.ext import commands
 import re
 from src.utils.kobold import KoboldClient
+from src.utils.websearch import DDGSClient
+from src.utils.chroma import chroma_client
 
 class Message(commands.Cog):
     def __init__(self, bot: discord.Bot):
         self.bot = bot
         self.kobold_client = KoboldClient()
+        self.ddgs_client = DDGSClient()
+        self.chroma_client = chroma_client
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        print(f"{message.author.name}: {message.content}")
-
         # prevent replies to itself
         if message.author.id == self.bot.user.id or message.author.bot:
             return
@@ -24,6 +26,8 @@ class Message(commands.Cog):
         if "glados" not in user_msg.lower():
             return
         
+        print(f"{message.author.name}: {message.content}")
+
         self.kobold_client.write_to_history(message.author.name, user_msg)
         
         # Have glados reply if mentioned
@@ -32,12 +36,25 @@ class Message(commands.Cog):
         self.kobold_client.write_to_history("Glados", response)
         
         await message.channel.send(response)
+        print(f"Glados: {response}")
 
 
     @commands.slash_command()
     async def clear(self, ctx: discord.ApplicationContext):
         self.kobold_client.clear_memory()
         await ctx.respond("Memory Cleared...")
+
+
+    @commands.slash_command()
+    async def websearch(self, ctx: discord.ApplicationContext, query: str):
+        await ctx.defer()
+        results = self.ddgs_client.search(query)
+        await ctx.followup.send(results[0]["body"])
+
+        # add to chromadb
+        for result in results:
+            self.chroma_client.add(result["body"])
+        self.chroma_client.load()
 
 
     def replace_user_mentions(self, message: str) -> str:
