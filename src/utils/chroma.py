@@ -1,4 +1,6 @@
 import chromadb
+from chromadb import Documents, EmbeddingFunction, Embeddings
+from sentence_transformers import SentenceTransformer
 from dotenv import load_dotenv
 import os
 import json
@@ -12,13 +14,24 @@ if environment == "DEV":
 else:
     database_path = "/app/data/database.jsonl"
 
+class MyEmbeddingFunction(EmbeddingFunction):
+    def __init__(self):
+        self.model = SentenceTransformer("multi-qa-mpnet-base-cos-v1")
+        
+    def __call__(self, input: Documents) -> Embeddings:
+        embeddings = self.model.encode(input).tolist()
+        return embeddings
+
 class ChromaClient:
     def __init__(self):
         self.client = chromadb.EphemeralClient()
         self.documents: list[str] = []
 
+
+
         self.collection = self.client.get_or_create_collection(
             name="glados_memory",
+            embedding_function=MyEmbeddingFunction(),
             configuration= {
                 "hnsw": {
                     "space": "cosine"
