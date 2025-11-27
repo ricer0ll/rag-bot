@@ -20,7 +20,7 @@ class KoboldClient:
     The class that handles kobold-related tasks
     """
     def __init__(self):
-        self.base_url = "http://brian-le-llm.duckdns.org:5500"
+        self.base_url = "http://192.168.86.115:5500" # private ipv4
         self.max_length = 100
         self.temperature = 0.6
         self.stop_sequence = ["\n", "</s>[INST]", "[/INST]"]
