@@ -9,7 +9,7 @@ class DDGSClient:
         self.ddgs = DDGS()
     
     def search(self, query: str) -> list:
-        results = self.ddgs.text(query, max_results=3, page=5, backend="auto")
+        results = self.ddgs.text(query, max_results=1, page=5, backend="auto")
 
         pattern = r"\[\d+\]"
         body = []
