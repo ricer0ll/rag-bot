@@ -49,7 +49,7 @@ class Message(commands.Cog):
     async def websearch(self, ctx: discord.ApplicationContext, query: str):
         await ctx.defer()
         results = self.ddgs_client.search(query)
-        await ctx.followup.send(results[0]["body"])
+        await ctx.followup.send(results[0]["body"][:1000] + "...")
 
         # add to chromadb
         for result in results:

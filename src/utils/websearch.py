@@ -2,6 +2,9 @@ from ddgs import DDGS
 import re
 
 class DDGSClient:
+    """
+    The class that handles all websearch related tasks
+    """
     def __init__(self):
         self.ddgs = DDGS()
     
